@@ -1,4 +1,5 @@
 -module(lager_bunyan_formatter).
+-author('Jon Gretar Borgthorsson <jongretar@oz.com>').
 -include_lib("lager/include/lager.hrl").
 
 -export([format/2]).
