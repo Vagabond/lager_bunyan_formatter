@@ -21,10 +21,9 @@ format(Msg, Config) ->
 	case get_metadata(module, Metadata) of
 		<<"undefined">> ->
 			Result = ejson:encode({Body});
-		_Else ->
-			File = get_metadata(module, Metadata),
+		Module ->
 			SrcAttribute = {src, {[
-				{file, <<File/binary, <<".erl">>/binary>>},
+				{file, <<Module/binary, <<".erl">>/binary>>},
 				{line, get_metadata(line, Metadata)},
 				{func, get_metadata(function, Metadata)}
 			]}},
