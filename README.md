@@ -22,3 +22,5 @@ Todo
 ====
 
  * Remove the ´ejson´ dependancy and build the json in-house.
+ * Allow overriding of hostname in configuration.
+ * See about custom fields.
