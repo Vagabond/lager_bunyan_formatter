@@ -1,6 +1,6 @@
 {application, lager_bunyan_formatter, [
 	{description, "Bunyan formatter for the Lager file_backend"},
-	{vsn, "0.0.1"},
+	{vsn, "0.2.0"},
 	{modules, []},
 	{applications, [kernel,stdlib]},
 	{registered, []}
