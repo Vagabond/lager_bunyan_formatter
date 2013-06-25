@@ -2,12 +2,13 @@
 -author('Jon Gretar Borgthorsson <jongretar@oz.com>').
 -include_lib("lager/include/lager.hrl").
 
--export([format/2]).
+-export([format/2, format/3]).
 
+format(Msg, Config, _Colors) -> format(Msg, Config).
 format(Msg, []) ->
 	format(Msg, [{name,"name_missing"}]);
 format(Msg, Config) ->
-	{Date, Time} = lager_msg:timestamp(Msg),
+	{Date, Time} = lager_msg:datetime(Msg),
 	{ok, Hostname} = inet:gethostname(),
 	Metadata = lager_msg:metadata(Msg),
 	Body = [
