@@ -11,25 +11,26 @@ format(Msg, Config) ->
 	{Date, Time} = lager_msg:datetime(Msg),
 	{ok, Hostname} = inet:gethostname(),
 	Metadata = lager_msg:metadata(Msg),
+	Md = serialize_metadata(Metadata, []),
 	Body = [
 		{v, 0},
 		{name, get_metadata(name, Config)},
 		{hostname, list_to_binary(Hostname)},
-		{pid, list_to_binary(os:getpid())},
+		{pid, list_to_integer(os:getpid())},
 		{time, list_to_binary(lists:append([Date,"T",Time,"Z"]))},
 		{level, parse_level(lager_msg:severity_as_int(Msg))},
-		{msg, list_to_binary(lager_msg:message(Msg))}
-	],
+		{msg, list_to_binary(lager_msg:message(Msg))},
+		{metadata, Md}],
 	case get_metadata(module, Metadata) of
 		<<"undefined">> ->
-			Result = ejson:encode({Body});
+			Result = jsx:encode(Body);
 		Module ->
-			SrcAttribute = {src, {[
+			SrcAttribute = {src, [
 				{file, <<Module/binary, <<".erl">>/binary>>},
 				{line, get_metadata(line, Metadata)},
 				{func, get_metadata(function, Metadata)}
-			]}},
-			Result = ejson:encode({[SrcAttribute|Body]})
+			]},
+			Result = jsx:encode([SrcAttribute|Body])
 	end,
 	[Result,<<"\n">>].
 
@@ -57,6 +58,17 @@ get_metadata(Key, Metadata, Default) ->
             list_to_binary(Value);
         {Key, Value} when is_integer(Value) ->
             Value;
-        {Key, _}  ->
-            <<"unknow_value">>
+        {Key, Value}  ->
+            list_to_binary(io_lib:format("~p", [Value]))
     end.
+
+serialize_metadata([], Acc) ->
+    Acc;
+serialize_metadata([{module, _}|T], Acc) ->
+    serialize_metadata(T, Acc);
+serialize_metadata([{function, _}|T], Acc) ->
+    serialize_metadata(T, Acc);
+serialize_metadata([{line, _}|T], Acc) ->
+    serialize_metadata(T, Acc);
+serialize_metadata([{Key, Value}|T], Acc) ->
+    serialize_metadata(T, [{Key, get_metadata(Key, [{Key, Value}])}|Acc]).
